@@ -27,11 +27,8 @@ app.get('/home', function(req, res){
 			console.log(err);
 		}else{
 			console.log(req.session);
-			//client.oauth_token = oauth_token;
 			req.session.oauth = {token: oauth_token, token_secret: oauth_token_secret};
 			console.log('oauth.token: ' + oauth_token);
-			//client.oauth_token_secret = oauth_token_secret;
-			//req.session.oauth.token_secret = oauth_token_secret;
 			console.log('oauth.token_secret: ' + oauth_token_secret);
 			res.redirect('http://www.tumblr.com/oauth/authorize?oauth_token='+oauth_token);
 		}
