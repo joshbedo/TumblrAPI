@@ -18,6 +18,8 @@ app.configure('development', function(){
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: "topsecret" }));
+	app.use("/js", express.static(__dirname + '/views/js'));
+	app.use("/css", express.static(__dirname + '/views/css'));
 });
 
 
@@ -55,9 +57,10 @@ app.get('/oauth/testapp', function(req, res){
 						token: req.session.oauth.access_token,
 						token_secret: req.session.oauth.access_token_secret
 				});
-				user.userInfo(function(err, data){
+				user.tagged('meme', function(err, data){
 					if(!err){
-						console.log(data);
+						console.log('photos:', JSON.stringify(data));
+						res.render('index.ejs', { data: data });
 					}else{
 						console.log(err);
 					}
