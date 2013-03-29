@@ -36,20 +36,35 @@ app.get('/home', function(req, res){
 });
 
 app.get('/oauth/testapp', function(req, res){
-	console.log(req.session.oauth);
-	var user = tumblr.createClient({
-			consumer_key: client.consumer_key,
-			consumer_secret: client.consumer_secret,
-			token: req.session.oauth.token,
-			token_secret: req.session.oauth.token_secret
-	});
-	user.userInfo(function(err, data){
-		if(!err){
-			console.log(data);
-		}else{
-			console.log(err);
-		}
-	});
+	if(req.session.oauth){
+		req.session.oauth.verifier = req.query.oauth_verifier;
+		var oauth = req.session.oauth;
+
+		consumer.getOAuthAccessToken(oauth.token, oauth.token_secret, oauth.verifier, function(err, oauth_access_token, oauth_access_token_secret, results){
+			if(err){
+				console.log(err);
+				res.send("something broke.");
+			}else{
+				req.session.oauth.access_token = oauth_access_token;
+				req.session.oauth.access_token_secret = oauth_access_token_secret;
+
+				//get blog data from tumblr account
+				var user = tumblr.createClient({
+						consumer_key: client.consumer_key,
+						consumer_secret: client.consumer_secret,
+						token: req.session.oauth.access_token,
+						token_secret: req.session.oauth.access_token_secret
+				});
+				user.userInfo(function(err, data){
+					if(!err){
+						console.log(data);
+					}else{
+						console.log(err);
+					}
+				});
+			}
+		});
+	}
 });
 
 server.listen(1337);
